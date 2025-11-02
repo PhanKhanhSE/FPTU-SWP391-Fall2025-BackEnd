@@ -73,6 +73,33 @@ type: DataTypes.BOOLEAN,     // maps to TINYINT(1) in MySQL
         defaultValue: false,
         // comment: 'Đã thanh toán' // nếu bạn dùng migrations, thêm comment ở migration
       },
+
+      // NEW: Thông tin gói thanh toán
+      plan_type: {
+        type: DataTypes.ENUM("FREE", "BASIC", "PREMIUM"),
+        allowNull: true,
+        defaultValue: "FREE",
+        comment: "Loại gói đăng tin: FREE (miễn phí), BASIC (cơ bản), PREMIUM (cao cấp)",
+      },
+
+      plan_price: {
+        type: DataTypes.DECIMAL(15, 2),
+        allowNull: true,
+        defaultValue: 0,
+        comment: "Giá gói đã chọn (0 cho FREE)",
+      },
+
+      plan_duration_days: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: "Số ngày hiển thị tin đăng (VD: 7, 30, 90)",
+      },
+
+      plan_features: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        comment: "Các tính năng của gói (VD: {priority: true, highlight: true})",
+      },
     },
     {
       tableName: "products",

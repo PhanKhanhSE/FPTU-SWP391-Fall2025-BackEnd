@@ -12,6 +12,60 @@ const authMiddleware = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
+ * /api/payments/packages:
+ *   get:
+ *     summary: Lấy danh sách các gói thanh toán (FREE, BASIC, PREMIUM)
+ *     tags: [Payments]
+ *     responses:
+ *       200:
+ *         description: Danh sách gói thanh toán
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Gói Free"
+ *                       type:
+ *                         type: string
+ *                         example: "FREE"
+ *                       price:
+ *                         type: number
+ *                         example: 0
+ *                       price_usd:
+ *                         type: number
+ *                         example: 0
+ *                       duration_days:
+ *                         type: integer
+ *                         example: 7
+ *                       features:
+ *                         type: object
+ *                         properties:
+ *                           priority:
+ *                             type: boolean
+ *                           highlight:
+ *                             type: boolean
+ *                           boost:
+ *                             type: boolean
+ *                           description:
+ *                             type: string
+ */
+router.get("/packages", paymentController.getPaymentPackages);
+
+/**
+ * @swagger
  * /api/payments/create:
  *   post:
  *     summary: Tạo đơn thanh toán PayPal

@@ -16,7 +16,7 @@ const { Op } = Sequelize;
 exports.getAllProduct = async (req, res) => {
   try {
     const products = await Product.findAll({
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [
         { model: ProductMedia, as: "media" },
         { model: Category, as: "category" },
@@ -39,7 +39,7 @@ exports.getProductByCateId = async (req, res) => {
     const { cateId } = req.params;
     const products = await Product.findAll({
       where: { category_id: cateId },
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [
         { model: ProductMedia, as: "media" },
         { model: Category, as: "category" },
@@ -64,7 +64,7 @@ exports.search = async (req, res) => {
         title: { [Op.like]: `%${name || ""}%` },
         status: "APPROVED", // chỉ tìm sản phẩm đã duyệt
       },
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [{ model: ProductMedia, as: "media" }],
       order: [["created_at", "DESC"]],
     });
@@ -82,7 +82,7 @@ exports.getProductDetail = async (req, res) => {
   try {
     const { id } = req.params;
     const product = await Product.findByPk(id, {
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [
         { model: ProductMedia, as: "media" },
         { model: Category, as: "category" },
@@ -159,7 +159,15 @@ const transaction = await db.sequelize.transaction();
       has_battery_included: req.body.has_battery_included,
 
       status: "PENDING",
-      // is_paid: false, // không cần set vì DB đã default 0/false
+      
+      // Payment plan info
+      plan_type: req.body.plan_type || "FREE", // Default là FREE nếu không chọn
+      plan_price: req.body.plan_price || 0,
+      plan_duration_days: req.body.plan_duration_days || null,
+      plan_features: req.body.plan_features || null,
+      
+      // Nếu chọn gói FREE thì is_paid = true ngay, các gói khác cần thanh toán
+      is_paid: req.body.plan_type === "FREE" ? true : false,
     };
 
     const product = await Product.create(productData, { transaction });
@@ -176,7 +184,7 @@ const transaction = await db.sequelize.transaction();
     await transaction.commit();
 
     const full = await Product.findByPk(product.id, {
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [{ model: ProductMedia, as: "media" }],
     });
 
@@ -220,7 +228,7 @@ exports.updateProductInfo = async (req, res) => {
     await transaction.commit();
 
     const updated = await Product.findByPk(id, {
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [{ model: ProductMedia, as: "media" }],
     });
 
@@ -269,7 +277,7 @@ exports.updateProductStatus = async (req, res) => {
 
     // Reload để đảm bảo trả về đủ thuộc tính (kèm is_paid)
     const withIsPaid = await Product.findByPk(id, {
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [
 { model: ProductMedia, as: "media" },
         { model: Category, as: "category" },
@@ -312,7 +320,7 @@ exports.updateModerateStatus = async (req, res) => {
 
     // Trả về sản phẩm có is_paid
     const refreshed = await Product.findByPk(id, {
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [
         { model: ProductMedia, as: "media" },
         { model: Category, as: "category" },
@@ -338,7 +346,7 @@ exports.getProductByMemberId = async (req, res) => {
 
     const products = await Product.findAll({
       where: { member_id: memberId },
-      attributes: { include: ["is_paid"] },
+      attributes: { include: ["is_paid", "plan_type", "plan_price", "plan_duration_days", "plan_features"] },
       include: [
         { model: ProductMedia, as: "media" },
         { model: Category, as: "category" },

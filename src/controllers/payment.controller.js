@@ -3,6 +3,64 @@ const paypal = require("@paypal/checkout-server-sdk");
 const paypalClient = require("../config/paypal");
 const { sequelize, Payment, PaymentHistory, Member, Product } = require("../models");
 
+// ⚙️ [GET] /api/payments/packages - Lấy danh sách các gói thanh toán
+exports.getPaymentPackages = async (req, res) => {
+  try {
+    const packages = [
+      { 
+        id: 1, 
+        name: "Gói Free", 
+        type: "FREE",
+        price: 0,
+        price_usd: 0,
+        duration_days: 7,
+        features: {
+          priority: false,
+          highlight: false,
+          boost: false,
+          description: "Đăng tin miễn phí, hiển thị 7 ngày"
+        }
+      },
+      { 
+        id: 2, 
+        name: "Gói Basic", 
+        type: "BASIC",
+        price: 100000,
+        price_usd: 4,
+        duration_days: 30,
+        features: {
+          priority: true,
+          highlight: false,
+          boost: false,
+          description: "Ưu tiên hiển thị, hiển thị 30 ngày"
+        }
+      },
+      { 
+        id: 3, 
+        name: "Gói Premium", 
+        type: "PREMIUM",
+        price: 300000,
+        price_usd: 12,
+        duration_days: 90,
+        features: {
+          priority: true,
+          highlight: true,
+          boost: true,
+          description: "Ưu tiên cao, nổi bật, đẩy tin, hiển thị 90 ngày"
+        }
+      },
+    ];
+    
+    res.json({ 
+      success: true, 
+      data: packages 
+    });
+  } catch (error) {
+    console.error("Get packages error:", error);
+    res.status(500).json({ message: "Lỗi lấy danh sách gói thanh toán" });
+  }
+};
+
 // ⚙️ [POST] /api/payments/create
 exports.createPayment = async (req, res) => {
   try {
